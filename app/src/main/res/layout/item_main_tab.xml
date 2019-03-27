@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable name="icon" type="Integer"/>
+        <variable name="clickAble" type="Boolean"/>
+    </data>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="80dp"
+                  android:gravity="center"
+                  android:orientation="vertical">
+
+        <ImageView
+                android:id="@+id/iv"
+                android:layout_width="80dp"
+                android:src="@drawable/bg_delay"
+                android:layout_height="80dp" />
+
+
+    </LinearLayout>
+</layout>
+

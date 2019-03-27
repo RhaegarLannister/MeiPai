@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">MeiPai</string>
+    <string name="connecting">连接中…</string>
+    <string name="start_position">起始位置</string>
+    <string name="delay">延时拍摄</string>
+    <string name="vedio">视频拍摄</string>
+    <string name="slide_rail">滑轨</string>
+    <string name="sure">确定</string>
+    <string name="rotate">旋转</string>
+    <string name="cancel">取消</string>
+    <string name="start_position_setting_a">滑轨起点(A)设置中</string>
+    <string name="start_position_setting_b">滑轨起点(B)设置中</string>
+    <string name="rotate_start_position_setting_a">旋转起点(A)设置中</string>
+    <string name="rotate_start_position_setting_b">旋转起点(B)设置中</string>
+    <string name="slide_rail_speed">滑轨\n速度</string>
+    <string name="horizontal_rotation">水平\n旋转</string>
+    <string name="space_time">间隔时间(秒)</string>
+    <string name="take_numbers">拍摄张数(张)</string>
+    <string name="finish_numbers">完成张数</string>
+    <string name="finish_times">完成时间</string>
+    <string name="button_times">按下快门时间(秒)</string>
+    <string name="finish_numbers_value">%1$d张/%2$d张</string>
+    <string name="finish_time_value">%1$d分%2$d秒</string>
+    <string name="percent">%</string>
+</resources>
