@@ -8,10 +8,14 @@
     <string name="sure">确定</string>
     <string name="rotate">旋转</string>
     <string name="cancel">取消</string>
+    <string name="start_position_setting_1">滑轨起点未设置</string>
     <string name="start_position_setting_a">滑轨起点(A)设置中</string>
     <string name="start_position_setting_b">滑轨起点(B)设置中</string>
+    <string name="start_position_setting_4">滑轨起点已设置</string>
+    <string name="rotate_start_position_setting_1">旋转起点未设置</string>
     <string name="rotate_start_position_setting_a">旋转起点(A)设置中</string>
     <string name="rotate_start_position_setting_b">旋转起点(B)设置中</string>
+    <string name="rotate_start_position_setting_4">旋转起点已设置</string>
     <string name="slide_rail_speed">滑轨\n速度</string>
     <string name="horizontal_rotation">水平\n旋转</string>
     <string name="space_time">间隔时间(秒)</string>

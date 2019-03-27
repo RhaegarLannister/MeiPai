@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() , HasSupportFragmentInjector {
         }
 
 
-        mViewModel.index.observe(this, Observer {
+       /* mViewModel.index.observe(this, Observer {
             if (it==0){
                 (activityMainBinding.tabLayout.getTabAt(1)?.view as View).setOnTouchListener {_,_->
                     return@setOnTouchListener true
@@ -75,6 +75,32 @@ class MainActivity : AppCompatActivity() , HasSupportFragmentInjector {
                 }
             }
         })
+*/
+        val observer= Observer<Int> {
+
+            if (((mViewModel.startPositionValue.value==5||mViewModel.startPositionValue.value==6)&&(mViewModel.rotatePositionValue.value==1||mViewModel.rotatePositionValue.value==5||mViewModel.rotatePositionValue.value==6))||
+                ((mViewModel.rotatePositionValue.value==5||mViewModel.rotatePositionValue.value==6)&&(mViewModel.startPositionValue.value==1||mViewModel.startPositionValue.value==5||mViewModel.startPositionValue.value==6))
+                    ){
+                (activityMainBinding.tabLayout.getTabAt(1)?.view as View).setOnTouchListener {_,_->
+                    return@setOnTouchListener false
+                }
+
+                (activityMainBinding.tabLayout.getTabAt(2)?.view as View).setOnTouchListener {_,_->
+                    return@setOnTouchListener false
+                }
+            }else{
+                (activityMainBinding.tabLayout.getTabAt(1)?.view as View).setOnTouchListener {_,_->
+                    return@setOnTouchListener true
+                }
+
+                (activityMainBinding.tabLayout.getTabAt(2)?.view as View).setOnTouchListener {_,_->
+                    return@setOnTouchListener true
+                }
+            }
+        }
+
+        mViewModel.startPositionValue.observe(this,observer)
+        mViewModel.rotatePositionValue.observe(this,observer)
 
     }
 
