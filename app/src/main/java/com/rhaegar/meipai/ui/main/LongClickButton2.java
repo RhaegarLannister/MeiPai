@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import androidx.databinding.BindingAdapter;
+import androidx.databinding.BindingMethod;
+import androidx.databinding.BindingMethods;
 
 import java.lang.ref.WeakReference;
 
@@ -18,8 +20,11 @@ public class LongClickButton2 extends Button {
     private long intervalTime = 50;
     private MyHandler handler;
 
+    public void setCancelListener(CancelListener cancelListener) {
+        this.cancelListener = cancelListener;
+    }
+
     private CancelListener cancelListener;
-    private int arowId;
     public LongClickButton2(Context context) {
         super(context);
         init();
@@ -65,16 +70,12 @@ public class LongClickButton2 extends Button {
                 SystemClock.sleep(intervalTime / 5);
             }
             if (cancelListener!=null){
-                cancelListener.onCancel(arowId);
+                cancelListener.onCancel();
             }
         }
     }
 
-    @BindingAdapter({"cancelListener","arowId"})
-    public static void setCancelListener(LongClickButton2 button2,CancelListener cancelListener,int id){
-        button2.cancelListener=cancelListener;
-        button2.arowId=id;
-    }
+
 
     /**
      * 通过handler，使监听的事件响应在主线程中进行
@@ -102,8 +103,8 @@ public class LongClickButton2 extends Button {
         this.intervalTime = intervalTime;
     }
 
-    interface CancelListener{
-        void onCancel(int arowId);
+    public interface CancelListener{
+        public void onCancel();
     }
 
 }

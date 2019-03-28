@@ -36,7 +36,7 @@ class DelayFragment: BaseFragment() {
         fragmentDelayBinding.viewModel=mViewModel
 
         mViewModel.spaceTime.observe(this, Observer {
-            mViewModel.textToInt(it,mViewModel.spaceTime)
+            mViewModel.textToFloat(it,mViewModel.spaceTime)
         })
 
         mViewModel.takeNumbers.observe(this, Observer {
@@ -44,7 +44,7 @@ class DelayFragment: BaseFragment() {
         })
 
         mViewModel.buttonTimes.observe(this, Observer {
-            mViewModel.textToInt(it,mViewModel.buttonTimes)
+            mViewModel.textToFloat(it,mViewModel.buttonTimes)
         })
 
 

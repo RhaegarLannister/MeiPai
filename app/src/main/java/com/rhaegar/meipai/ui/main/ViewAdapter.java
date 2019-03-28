@@ -2,6 +2,8 @@ package com.rhaegar.meipai.ui.main;
 
 import android.widget.ImageView;
 import androidx.databinding.BindingAdapter;
+import androidx.databinding.BindingMethod;
+import androidx.databinding.BindingMethods;
 import androidx.viewpager.widget.ViewPager;
 
 /**
@@ -9,6 +11,11 @@ import androidx.viewpager.widget.ViewPager;
  * Description:
  * Date: 2019/3/25
  */
+@BindingMethods({
+        @BindingMethod(type = LongClickButton2.class,
+                attribute = "app:cancelListener",
+                method = "setCancelListener"),
+})
 public class ViewAdapter {
 
 

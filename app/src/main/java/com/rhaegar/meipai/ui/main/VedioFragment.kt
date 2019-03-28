@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.rhaegar.meipai.R
@@ -34,16 +33,6 @@ class VedioFragment: BaseFragment() {
         fragmentVedioBinding=DataBindingUtil.inflate(inflater, R.layout.fragment_vedio,container,false)
         fragmentVedioBinding.viewModel=mViewModel
         fragmentVedioBinding.lifecycleOwner=this
-
-        mViewModel.slideSpeed.observe(this, Observer {
-
-        })
-
-        mViewModel.slideSpeed.observe(this, Observer {
-
-        })
-
-
         return fragmentVedioBinding.root
 
     }

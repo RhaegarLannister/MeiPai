@@ -3,8 +3,8 @@ package com.rhaegar.meipai.ui.connect
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.rhaegar.meipai.App
 import com.rhaegar.meipai.R
-import com.rhaegar.meipai.repository.BlueToothRepository
 import javax.inject.Inject
 
 /**
@@ -12,14 +12,18 @@ import javax.inject.Inject
  * Description:连接蓝牙ViewModel
  * Date: 2019/3/25
  */
-class ConnectViewModel @Inject constructor(app:Application, private val blueToothRepository: BlueToothRepository) : AndroidViewModel(app) {
+class ConnectViewModel @Inject constructor(app: Application) :
+    AndroidViewModel(app) {
 
-    var connectState:MutableLiveData<String> = MutableLiveData()
 
-    val scanBleList= blueToothRepository.search()
+    var connectState = MutableLiveData<String>()
 
     init {
-        connectState.value=app.getString(R.string.connecting)
+        connectState.value= App.app.getString(R.string.connecting)
     }
+
+
+
+
 
 }

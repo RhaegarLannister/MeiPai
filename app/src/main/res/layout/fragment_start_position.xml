@@ -43,8 +43,7 @@
                     android:layout_width="60dp"
                     android:layout_toRightOf="@id/tv"
                     android:id="@+id/iv1"
-                    app:cancelListener="@{viewModel}"
-                    app:arowId="@{1}"
+                    app:cancelListener="@{()->{viewModel.onCancel(1)}}"
                     android:enabled="@{viewModel.startPositionClickAble}"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="16dp"
@@ -67,13 +66,12 @@
 
             <com.rhaegar.meipai.ui.main.LongClickButton2 android:layout_width="60dp"
                                                          android:id="@+id/iv2"
+                                                         app:cancelListener="@{()->{viewModel.onCancel(2)}}"
                                                          android:enabled="@{viewModel.startPositionClickAble}"
                                                          android:layout_centerVertical="true"
                                                          android:layout_toLeftOf="@id/tv1"
                                                          android:background="@drawable/bg_arow_right"
                                                          android:onClick="@{()->viewModel.longClick(2)}"
-                                                         app:cancelListener="@{viewModel}"
-                                                         app:arowId="@{2}"
                                                          android:layout_height="60dp"/>
         </RelativeLayout>
 
@@ -109,11 +107,10 @@
             <com.rhaegar.meipai.ui.main.LongClickButton2 android:layout_width="60dp"
                                                          android:layout_toRightOf="@id/tv2"
                                                          android:id="@+id/iv3"
+                                                         app:cancelListener="@{()->{viewModel.onCancel(3)}}"
                                                          android:enabled="@{viewModel.rotatePositionClickAble}"
                                                          android:layout_centerVertical="true"
                                                          android:onClick="@{()->viewModel.longClick(3)}"
-                                                         app:cancelListener="@{viewModel}"
-                                                         app:arowId="@{3}"
                                                          android:layout_marginLeft="16dp"
                                                          android:background="@drawable/bg_arow_left"
                                                          android:layout_height="60dp"/>
@@ -135,10 +132,9 @@
                                                          android:id="@+id/iv4"
                                                          android:layout_centerVertical="true"
                                                          android:layout_toLeftOf="@id/tv3"
+                                                         app:cancelListener="@{()->{viewModel.onCancel(4)}}"
                                                          android:enabled="@{viewModel.rotatePositionClickAble}"
                                                          android:onClick="@{()->viewModel.longClick(4)}"
-                                                         app:cancelListener="@{viewModel}"
-                                                         app:arowId="@{4}"
                                                          android:background="@drawable/bg_arow_right"
                                                          android:layout_height="60dp"/>
         </RelativeLayout>

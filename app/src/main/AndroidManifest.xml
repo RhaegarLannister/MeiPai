@@ -28,6 +28,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.main.MainActivity"/>
+        <service android:name=".repository.BlueToothRepository"/>
     </application>
 
 </manifest>

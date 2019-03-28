@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.rhaegar.meipai.R
-import com.rhaegar.meipai.repository.BlueToothRepository
 import com.rhaegar.meipai.repository.SendMessageRepository
 import com.rhaegar.meipai.util.L
 import javax.inject.Inject
@@ -16,10 +15,10 @@ import javax.inject.Inject
  * Description:
  * Date: 2019/3/25
  */
-class MainViewModel @Inject constructor(val app: Application, private val blueToothRepository: BlueToothRepository,
+class MainViewModel @Inject constructor(val app: Application,
                                         private val sendMessageRepository: SendMessageRepository
 ) :
-    ViewModel(), LongClickButton2.CancelListener {
+    ViewModel(){
 
 
     private val index = MutableLiveData<Int>()//当前选择页面
@@ -101,7 +100,7 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
     val takeNumbers = MutableLiveData<String>()//拍摄张数
     val buttonTimes = MutableLiveData<String>()//按下快门时间
 
-    private val finishNumbersValue = MutableLiveData<Int>()//完成张数
+    private val finishNumbersValue =MutableLiveData<Int>()//完成张数
 
     private val finishTimesValue = MutableLiveData<Long>()//完成时间
 
@@ -137,8 +136,10 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
         index.value = 0
         startPositionValue.value = 1
         rotatePositionValue.value = 1
-        slideSpeed.value = 40
+        slideSpeed.value=80
         horizontalRotation.value = 60
+        sendSlideSpeed()
+        sendHorizontalRotation()
         isTakeVideo.value = false
         isTakeDelayVideo.value = false
 
@@ -147,14 +148,12 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
         takeNumbers.value = "50"
         buttonTimes.value = "60"
 
-        finishNumbersValue.value = 25
+        finishNumbersValue.value=0
+
         finishTimesValue.value = 15000 + System.currentTimeMillis()
 
     }
 
-    private fun uploadParm() {
-
-    }
 
 
     private fun getTitleByIndex(index: Int): String {
@@ -174,13 +173,19 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
 
     fun changeIndex(position: Int) {
         index.value = position
+        if (position==0){
+            startPositionValue.value=1
+            rotatePositionValue.value=1
+        }
     }
 
     fun startOrPauseTakeVideo() {
+        sendMessageRepository.sendVideoCtrl(isTakeVideo.value != true)
         isTakeVideo.value = isTakeVideo.value != true
     }
 
     fun startOrPauseTakeDelayVideo() {
+        sendMessageRepository.sendPhotoCtrl(isTakeDelayVideo.value != true)
         isTakeDelayVideo.value = isTakeDelayVideo.value != true
     }
 
@@ -253,18 +258,23 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
             when (startPositionValue.value) {
                 2,6 -> {
                     startPositionValue.value = 3
+                    sendMessageRepository.sendRailConfirm(true,true)
                 }
                 4 -> {
                     startPositionValue.value = 5
+                    sendMessageRepository.sendRailConfirm(true,false)
+
                 }
             }
         } else {
             when (rotatePositionValue.value) {
                 2,6 -> {
                     rotatePositionValue.value = 3
+                    sendMessageRepository.sendYawConfirm(true,true)
                 }
                 4 -> {
                     rotatePositionValue.value = 5
+                    sendMessageRepository.sendYawConfirm(true,false)
                 }
             }
         }
@@ -275,10 +285,12 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
 
         startPositionValue.value=1
         rotatePositionValue.value=1
+        sendMessageRepository.sendPointCancel(true)
     }
 
     fun takePhoto() {
         L.e("拍照")
+        sendMessageRepository.sendPointPhoto(true)
     }
 
     fun textToInt(it: String, liveData: MutableLiveData<String>): String {
@@ -296,19 +308,51 @@ class MainViewModel @Inject constructor(val app: Application, private val blueTo
 
         if (liveData == spaceTime && spaceTime.value != text) {
             spaceTime.value = text
-        } else if (liveData == takeNumbers && takeNumbers.value != text) {
-            takeNumbers.value = text
-        } else if (liveData == buttonTimes && buttonTimes.value != text) {
-            buttonTimes.value = text
         }
-        uploadParm()
+        sendMessageRepository.sendPhotoNumber(text.toInt())
         return text
     }
 
 
-    override fun onCancel(arowId: Int) {
-        L.e("取消长按$arowId")
+    fun textToFloat(it: String, liveData: MutableLiveData<String>){
+        try {
+            if (liveData == spaceTime) {
+                sendMessageRepository.sendPhotoInterval(it.toFloat())
+            } else if (liveData == buttonTimes) {
+                sendMessageRepository.sendPhotoShutter(it.toFloat())
+            }
+        }catch (e:Exception){
 
+        }
+
+
+    }
+
+    fun onCancel(arowId: Int) {
+        L.e("取消长按$arowId")
+        when(arowId){
+            1->{
+                sendMessageRepository.sendRailLeftMove(false)
+            }
+            2->{
+                sendMessageRepository.sendRailRightMove(false)
+            }
+            3->{
+                sendMessageRepository.sendYawLeftMove(false)
+            }
+            4->{
+                sendMessageRepository.sendYawRightMove(false)
+            }
+        }
+
+    }
+
+    fun sendSlideSpeed() {
+        sendMessageRepository.sendRailSpeed(slideSpeed.value!!)
+    }
+
+    fun sendHorizontalRotation() {
+        sendMessageRepository.sendYawSpeed(horizontalRotation.value!!)
     }
 
 }

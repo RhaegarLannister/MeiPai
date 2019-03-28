@@ -16,6 +16,7 @@
 
 package com.rhaegar.meipai.di
 
+import com.rhaegar.meipai.repository.BlueToothRepository
 import com.rhaegar.meipai.ui.connect.ConnectActivity
 import com.rhaegar.meipai.ui.main.MainActivity
 import dagger.Module
@@ -30,4 +31,7 @@ abstract class ActivityModule {
 
     @ContributesAndroidInjector
     abstract fun contributeConnectActivity(): ConnectActivity
+
+    @ContributesAndroidInjector
+    abstract fun contributeService(): BlueToothRepository
 }

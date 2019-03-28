@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">MeiPai</string>
     <string name="connecting">连接中…</string>
+    <string name="connected">连接成功</string>
     <string name="start_position">起始位置</string>
     <string name="delay">延时拍摄</string>
     <string name="vedio">视频拍摄</string>

@@ -1,14 +1,20 @@
 package com.rhaegar.meipai.repository
 
-import android.app.Application
 import android.bluetooth.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Binder
+import android.os.IBinder
 import android.text.TextUtils
-import androidx.lifecycle.MutableLiveData
+import com.rhaegar.meipai.App.Companion.app
 import com.rhaegar.meipai.bean.BleDevice
 import com.rhaegar.meipai.util.L
+import dagger.android.DaggerService
+import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
 /**
@@ -16,41 +22,63 @@ import javax.inject.Singleton
  * Description:
  * Date: 2019/3/19
  */
-@Singleton
-class BlueToothRepository @Inject constructor(
-    private val bluetoothAdapter: BluetoothAdapter,
-    private val app: Application
-) {
+class BlueToothRepository : DaggerService() {
 
-    private val scanBleList = MutableLiveData<MutableList<BleDevice>>()
+
+    @Inject
+    lateinit var bluetoothAdapter: BluetoothAdapter
+
     private var mBluetoothGatt: BluetoothGatt? = null
+    companion object {
+        val ACTION_GATT_CONNECTED = "com.rhaegar.meipai.ACTION_GATT_CONNECTED"
+        val ACTION_GATT_DISCONNECTED = "com.rhaegar.meipai.ACTION_GATT_DISCONNECTED"
+        val ACTION_GATT_SERVICES_DISCOVERED = "com.rhaegar.meipai.ACTION_GATT_SERVICES_DISCOVERED"
+        val ACTION_DATA_AVAILABLE = "com.rhaegar.meipai.ACTION_DATA_AVAILABLE"
+        val EXTRA_DATA = "com.rhaegar.meipai.EXTRA_DATA"
+        val ACTION_SEND_MESSAGE="ACTION_SEND_MESSAGE"
+    }
+
     private val UUID_NOTIFY = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
     private val UUID_SERVICE = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")
     var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
-    init {
-        scanBleList.value = mutableListOf()
-    }
+
+
 
     private val mLeScanCallback = BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
         val bleDevice = BleDevice(device, rssi, scanRecord, 0)
         if (!TextUtils.isEmpty(device.name)) {
             L.e(device.name + bleDevice.toString())
         }
-        if (device.address=="C8:0F:10:A7:75:9C"){
-            connect(device.address)
-            stopScan()
-        }
-        scanBleList.value?.add(bleDevice)
+        connect(device.address)
+        stopScan()
     }
 
-    fun stopScan(){
+    override fun onCreate() {
+        super.onCreate()
+        registerReceiver(mGattUpdateReceiver, IntentFilter(ACTION_SEND_MESSAGE))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(mGattUpdateReceiver)
+    }
+
+    private val mGattUpdateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            if (BlueToothRepository.ACTION_SEND_MESSAGE==action){
+                val s = intent.getStringExtra(EXTRA_DATA)
+                writeValue(s)
+            }
+        }
+    }
+
+    private fun stopScan() {
         bluetoothAdapter.stopLeScan(mLeScanCallback)
     }
 
-    fun search(): MutableLiveData<MutableList<BleDevice>> {
-
-        bluetoothAdapter.startLeScan(mLeScanCallback)
-        return scanBleList
+    fun search() {
+        bluetoothAdapter.startLeScan(arrayOf(UUID_SERVICE), mLeScanCallback)
     }
 
     fun connect(address: String?): Boolean {
@@ -85,13 +113,26 @@ class BlueToothRepository @Inject constructor(
     }
 
 
+    fun writeValue(strValue: String) {
+        L.e(strValue)
+        if (mNotifyCharacteristic != null) {
+            mNotifyCharacteristic?.value = strValue.toByteArray()
+            mBluetoothGatt?.writeCharacteristic(mNotifyCharacteristic)
+        }
+    }
+
     fun findService(gattServices: List<BluetoothGattService>) {
         for (gattService in gattServices) {
+            L.e(gattService.uuid.toString())
+
             if (gattService.uuid.toString().equals(UUID_SERVICE.toString(), ignoreCase = true)) {
                 val gattCharacteristics = gattService.characteristics
                 for (gattCharacteristic in gattCharacteristics) {
+                    L.e(gattCharacteristic.uuid.toString())
                     if (gattCharacteristic.uuid.toString().equals(UUID_NOTIFY.toString(), ignoreCase = true)) {
                         mNotifyCharacteristic = gattCharacteristic
+                        mBluetoothGatt?.setCharacteristicNotification(mNotifyCharacteristic, true)
+                        broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED)
                         return
                     }
                 }
@@ -100,32 +141,35 @@ class BlueToothRepository @Inject constructor(
     }
 
 
-
-
     private val mGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             L.e("onConnectionStateChange")
+            L.e(Thread.currentThread().name)
+            gatt.discoverServices()
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     L.e("onConnectionStateChange1111")
+                    gatt.discoverServices()
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     L.e("onConnectionStateChange2222")
                     mBluetoothGatt?.close()
                     mBluetoothGatt = null
+                    broadcastUpdate(ACTION_GATT_DISCONNECTED)
                 }
             }
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             L.e("onServicesDiscovered")
+            L.e(Thread.currentThread().name)
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 L.e("onServicesDiscovered1111")
                 findService(gatt.services)
             } else {
                 L.e("onServicesDiscovered2222")
-                if (mBluetoothGatt?.device?.uuids == null){
+                if (mBluetoothGatt?.device?.uuids == null) {
 
                 }
             }
@@ -139,7 +183,7 @@ class BlueToothRepository @Inject constructor(
             L.e("onCharacteristicRead")
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-
+                onReadData(characteristic)
             }
         }
 
@@ -148,7 +192,7 @@ class BlueToothRepository @Inject constructor(
             characteristic: BluetoothGattCharacteristic
         ) {
             L.e("onCharacteristicChanged")
-
+            onReadData(characteristic)
         }
 
         override fun onCharacteristicWrite(
@@ -186,5 +230,54 @@ class BlueToothRepository @Inject constructor(
             L.e("onReliableWriteCompleted")
         }
 
+    }
+
+    private fun onReadData(characteristic: BluetoothGattCharacteristic) {
+        val str = String(characteristic.value)
+        broadcastUpdate(ACTION_DATA_AVAILABLE,str)
+        L.e(str)
+        try {
+            if (str.contains("PhotoFinishNum")) {
+                val jsonObject = JSONObject(str)
+                val int = jsonObject.getInt("PhotoFinishNum")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+
+    }
+
+    private fun broadcastUpdate(action: String) {
+        val intent = Intent(action)
+        sendBroadcast(intent)
+    }
+
+    private fun broadcastUpdate(
+        action: String,
+        strValue: String
+    ) {
+        val intent = Intent(action)
+
+        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
+        // carried out as per profile specifications:
+        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
+        // For all other profiles, writes the data formatted in HEX.
+
+        intent.putExtra(BlueToothRepository.EXTRA_DATA, strValue)
+        sendBroadcast(intent)
+    }
+
+
+
+    private val mBinder = LocalBinder()
+
+    inner class LocalBinder : Binder() {
+        internal val service: BlueToothRepository
+            get() = this@BlueToothRepository
+    }
+
+    override fun onBind(intent: Intent): IBinder? {
+        return mBinder
     }
 }

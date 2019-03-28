@@ -12,6 +12,7 @@
                   android:layout_width="match_parent"
                   android:layout_height="match_parent">
 
+
         <LinearLayout android:layout_width="match_parent"
                       android:gravity="center_vertical"
                       android:orientation="horizontal"
@@ -23,16 +24,18 @@
                       android:text="@string/slide_rail_speed"
                       android:layout_height="wrap_content"/>
 
-            <com.rhaegar.meipai.ui.main.PhilSeekBar
+            <SeekBar
                     android:layout_width="match_parent"
                     android:layout_marginLeft="16dp"
                     android:max="100"
                     android:thumb="@drawable/ic_vedio_arow_light"
-                    app:philprogress="@={viewModel.slideSpeed}"
+                    android:progress="@={viewModel.slideSpeed}"
+                    android:onStopTrackingTouch="@{()->viewModel.sendSlideSpeed()}"
                     android:progressDrawable="@drawable/seekbar"
                     android:layout_height="wrap_content"/>
-        </LinearLayout>
 
+
+        </LinearLayout>
 
         <LinearLayout android:layout_width="match_parent"
                       android:gravity="center_vertical"
@@ -46,11 +49,12 @@
                       android:text="@string/horizontal_rotation"
                       android:layout_height="wrap_content"/>
 
-            <com.rhaegar.meipai.ui.main.PhilSeekBar
+            <SeekBar
                     android:layout_width="match_parent"
                     android:layout_marginLeft="16dp"
                     android:max="100"
-                    app:philprogress="@={viewModel.horizontalRotation}"
+                    android:progress="@={viewModel.horizontalRotation}"
+                    android:onStopTrackingTouch="@{()->viewModel.sendHorizontalRotation()}"
                     android:thumb="@drawable/ic_vedio_arow_light"
                     android:progressDrawable="@drawable/seekbar"
                     android:layout_height="wrap_content"/>
