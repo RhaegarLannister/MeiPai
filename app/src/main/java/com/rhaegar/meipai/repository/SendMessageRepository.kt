@@ -174,7 +174,7 @@ class SendMessageRepository @Inject constructor(val app: Application){
 
     fun sendPhotoCtrl(speed: Boolean):String {
         val hashMap = HashMap<String, Any>()
-        hashMap["PhotoShutter"]=speed
+        hashMap["PhotoCtrl"]=speed
         val json = gson.toJson(hashMap)
         val intent = Intent()
         intent.action=BlueToothRepository.ACTION_SEND_MESSAGE

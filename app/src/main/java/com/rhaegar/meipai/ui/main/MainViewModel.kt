@@ -1,6 +1,7 @@
 package com.rhaegar.meipai.ui.main
 
 import android.app.Application
+import android.text.Editable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -8,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import com.rhaegar.meipai.R
 import com.rhaegar.meipai.repository.SendMessageRepository
 import com.rhaegar.meipai.util.L
+import com.rhaegar.meipai.util.SPUtils
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -15,10 +18,11 @@ import javax.inject.Inject
  * Description:
  * Date: 2019/3/25
  */
-class MainViewModel @Inject constructor(val app: Application,
-                                        private val sendMessageRepository: SendMessageRepository
+class MainViewModel @Inject constructor(
+    val app: Application,
+    private val sendMessageRepository: SendMessageRepository
 ) :
-    ViewModel(){
+    ViewModel() {
 
 
     private val index = MutableLiveData<Int>()//当前选择页面
@@ -40,7 +44,7 @@ class MainViewModel @Inject constructor(val app: Application,
 
     val startPositionSureClickAble: LiveData<Boolean> = Transformations.switchMap(startPositionValue) {
         val data = MutableLiveData<Boolean>()
-        data.value = it == 2 || it == 4||it==6
+        data.value = it == 2 || it == 4 || it == 6
         data
     }//滑轨起点确定是否可以点击
 
@@ -52,9 +56,11 @@ class MainViewModel @Inject constructor(val app: Application,
 
     val rotatePositionSureClickAble: LiveData<Boolean> = Transformations.switchMap(rotatePositionValue) {
         val data = MutableLiveData<Boolean>()
-        data.value = it == 2 || it == 4||it==6
+        data.value = it == 2 || it == 4 || it == 6
         data
     }//旋转起点确定是否可以点击
+
+    val isClickCancel = MutableLiveData<Boolean>()
 
     val startPositionText: LiveData<String> = Transformations.switchMap(startPositionValue) {
         val liveData = MutableLiveData<String>()
@@ -62,10 +68,10 @@ class MainViewModel @Inject constructor(val app: Application,
             1 -> {
                 liveData.value = app.getString(R.string.start_position_setting_1)
             }
-            2,5,6 -> {
+            2, 5, 6 -> {
                 liveData.value = app.getString(R.string.start_position_setting_a)
             }
-            3,4 -> {
+            3, 4 -> {
                 liveData.value = app.getString(R.string.start_position_setting_b)
             }
 
@@ -79,10 +85,10 @@ class MainViewModel @Inject constructor(val app: Application,
             1 -> {
                 liveData.value = app.getString(R.string.rotate_start_position_setting_1)
             }
-            2,5,6 -> {
+            2, 5, 6 -> {
                 liveData.value = app.getString(R.string.rotate_start_position_setting_a)
             }
-            3,4 -> {
+            3, 4 -> {
                 liveData.value = app.getString(R.string.rotate_start_position_setting_b)
             }
         }
@@ -100,15 +106,14 @@ class MainViewModel @Inject constructor(val app: Application,
     val takeNumbers = MutableLiveData<String>()//拍摄张数
     val buttonTimes = MutableLiveData<String>()//按下快门时间
 
-    private val finishNumbersValue =MutableLiveData<Int>()//完成张数
 
-    private val finishTimesValue = MutableLiveData<Long>()//完成时间
+    val recText = MutableLiveData<String>()//按下快门时间
 
-    val finishNumbers: LiveData<String> = Transformations.switchMap(finishNumbersValue) {
-        val liveData = MutableLiveData<String>()
-        liveData.value = app.getString(R.string.finish_numbers_value, it, takeNumbers.value?.toInt() ?: 0)
-        liveData
-    }//完成张数
+    val finishNumbersValue = MutableLiveData<Int>()//完成张数
+
+    val finishTimesValue = MutableLiveData<Long>()//完成时间
+
+    var finishNumbers: LiveData<String>
 
 
     var startTime = System.currentTimeMillis()
@@ -120,13 +125,7 @@ class MainViewModel @Inject constructor(val app: Application,
         liveData
     }//完成时间
 
-    val percent: LiveData<Int> = Transformations.switchMap(finishNumbersValue) {
-        val liveData = MutableLiveData<Int>()
-
-        val value = ((it / (takeNumbers.value?.toFloat() ?: it.toFloat())) * 100).toInt()
-        liveData.value = value
-        return@switchMap liveData
-    }
+    val percent: LiveData<Int>
 
 
     val isTakeDelayVideo = MutableLiveData<Boolean>()//是否正在拍摄延迟
@@ -136,30 +135,54 @@ class MainViewModel @Inject constructor(val app: Application,
         index.value = 0
         startPositionValue.value = 1
         rotatePositionValue.value = 1
-        slideSpeed.value=80
-        horizontalRotation.value = 60
-        sendSlideSpeed()
-        sendHorizontalRotation()
+        slideSpeed.value = SPUtils["slideSpeed", 80] as Int
+        horizontalRotation.value = SPUtils["horizontalRotation", 60] as Int
+
         isTakeVideo.value = false
         isTakeDelayVideo.value = false
+        isClickCancel.value = false
 
 
-        spaceTime.value = "40"
-        takeNumbers.value = "50"
-        buttonTimes.value = "60"
+        /*sendSlideSpeed()
+        sendHorizontalRotation()*/
+        buttonTimes.postValue(SPUtils["buttonTimes", "60"] as String)
+        spaceTime.postValue(SPUtils["spaceTime", "40"] as String)
+        takeNumbers.postValue(SPUtils["takeNumbers", "50"] as String)
 
-        finishNumbersValue.value=0
+        finishTimesValue.value = System.currentTimeMillis()
+        finishNumbers = Transformations.switchMap(finishNumbersValue) {
+            val liveData = MutableLiveData<String>()
+            liveData.value = app.getString(R.string.finish_numbers_value, it, takeNumbers.value?.toInt() ?: 0)
+            liveData
+        }//完成张数
+        finishNumbersValue.value = 0
+        percent = Transformations.switchMap(finishNumbersValue) {
+            val liveData = MutableLiveData<Int>()
 
-        finishTimesValue.value = 15000 + System.currentTimeMillis()
+            val value = ((it / (takeNumbers.value?.toFloat() ?: it.toFloat())) * 100).toInt()
+            liveData.value = value
+            return@switchMap liveData
+        }
 
+        recText.value = "未收到数据"
     }
-
 
 
     private fun getTitleByIndex(index: Int): String {
 
+        if (index!=1){
+            isTakeVideo.value = false
+            sendMessageRepository.sendVideoCtrl(false)
+        }
+
+        if (index!=2){
+            isTakeDelayVideo.value = false
+            sendMessageRepository.sendPhotoCtrl(false)
+        }
+
         return when (index) {
             0 -> {
+                isClickCancel.value = false
                 app.getString(R.string.start_position)
             }
             1 -> {
@@ -173,24 +196,38 @@ class MainViewModel @Inject constructor(val app: Application,
 
     fun changeIndex(position: Int) {
         index.value = position
-        if (position==0){
-            startPositionValue.value=1
-            rotatePositionValue.value=1
+        if (position == 0) {
+            startPositionValue.value = 1
+            rotatePositionValue.value = 1
         }
     }
 
     fun startOrPauseTakeVideo() {
         sendMessageRepository.sendVideoCtrl(isTakeVideo.value != true)
-        isTakeVideo.value = isTakeVideo.value != true
     }
 
     fun startOrPauseTakeDelayVideo() {
         sendMessageRepository.sendPhotoCtrl(isTakeDelayVideo.value != true)
-        isTakeDelayVideo.value = isTakeDelayVideo.value != true
+
+    }
+
+    private val timerFinishTime=Timer()
+    fun startTimer() {
+        val task = object : TimerTask() {
+            override fun run() {
+                finishTimesValue.postValue(System.currentTimeMillis())
+            }
+        }
+        timerFinishTime.schedule(task, 0, 1000)
+    }
+
+
+    override fun onCleared() {
+        super.onCleared()
+        timerFinishTime.cancel()
     }
 
     fun longClick(index: Int) {
-        L.e("长按$index")
         when (index) {
             1, 2 -> {
                 when (startPositionValue.value) {
@@ -200,23 +237,23 @@ class MainViewModel @Inject constructor(val app: Application,
                     2 -> {
 
                     }
-                    3->{
+                    3 -> {
                         startPositionValue.value = 4
                     }
                     4 -> {
 
                     }
-                    5->{
+                    5 -> {
                         startPositionValue.value = 6
                     }
-                    6->{
+                    6 -> {
 
                     }
                 }
 
-                if (index==1){
+                if (index == 1) {
                     sendMessageRepository.sendRailLeftMove(true)
-                }else{
+                } else {
                     sendMessageRepository.sendRailRightMove(true)
                 }
             }
@@ -231,20 +268,20 @@ class MainViewModel @Inject constructor(val app: Application,
                     3 -> {
                         rotatePositionValue.value = 4
                     }
-                    4->{
+                    4 -> {
 
                     }
-                    5->{
+                    5 -> {
                         rotatePositionValue.value = 6
                     }
-                    6->{
+                    6 -> {
 
                     }
                 }
 
-                if (index==3){
+                if (index == 3) {
                     sendMessageRepository.sendYawLeftMove(true)
-                }else{
+                } else {
                     sendMessageRepository.sendYawRightMove(true)
                 }
             }
@@ -256,25 +293,25 @@ class MainViewModel @Inject constructor(val app: Application,
         L.e("确定$index")
         if (index == 1) {
             when (startPositionValue.value) {
-                2,6 -> {
+                2, 6 -> {
                     startPositionValue.value = 3
-                    sendMessageRepository.sendRailConfirm(true,true)
+                    sendMessageRepository.sendRailConfirm(true, true)
                 }
                 4 -> {
                     startPositionValue.value = 5
-                    sendMessageRepository.sendRailConfirm(true,false)
+                    sendMessageRepository.sendRailConfirm(true, false)
 
                 }
             }
         } else {
             when (rotatePositionValue.value) {
-                2,6 -> {
+                2, 6 -> {
                     rotatePositionValue.value = 3
-                    sendMessageRepository.sendYawConfirm(true,true)
+                    sendMessageRepository.sendYawConfirm(true, true)
                 }
                 4 -> {
                     rotatePositionValue.value = 5
-                    sendMessageRepository.sendYawConfirm(true,false)
+                    sendMessageRepository.sendYawConfirm(true, false)
                 }
             }
         }
@@ -282,9 +319,9 @@ class MainViewModel @Inject constructor(val app: Application,
 
     fun cancel() {
         L.e("取消")
-
-        startPositionValue.value=1
-        rotatePositionValue.value=1
+        isClickCancel.value = true
+        startPositionValue.value = 1
+        rotatePositionValue.value = 1
         sendMessageRepository.sendPointCancel(true)
     }
 
@@ -293,54 +330,19 @@ class MainViewModel @Inject constructor(val app: Application,
         sendMessageRepository.sendPointPhoto(true)
     }
 
-    fun textToInt(it: String, liveData: MutableLiveData<String>): String {
-
-        var text = it
-        if (it.isEmpty()) {
-            text = "1"
-        } else if (it.startsWith("0")) {
-            if (it.length > 1) {
-                text = it.substring(1)
-            } else {
-                text = "1"
-            }
-        }
-
-        if (liveData == spaceTime && spaceTime.value != text) {
-            spaceTime.value = text
-        }
-        sendMessageRepository.sendPhotoNumber(text.toInt())
-        return text
-    }
-
-
-    fun textToFloat(it: String, liveData: MutableLiveData<String>){
-        try {
-            if (liveData == spaceTime) {
-                sendMessageRepository.sendPhotoInterval(it.toFloat())
-            } else if (liveData == buttonTimes) {
-                sendMessageRepository.sendPhotoShutter(it.toFloat())
-            }
-        }catch (e:Exception){
-
-        }
-
-
-    }
 
     fun onCancel(arowId: Int) {
-        L.e("取消长按$arowId")
-        when(arowId){
-            1->{
+        when (arowId) {
+            1 -> {
                 sendMessageRepository.sendRailLeftMove(false)
             }
-            2->{
+            2 -> {
                 sendMessageRepository.sendRailRightMove(false)
             }
-            3->{
+            3 -> {
                 sendMessageRepository.sendYawLeftMove(false)
             }
-            4->{
+            4 -> {
                 sendMessageRepository.sendYawRightMove(false)
             }
         }
@@ -353,6 +355,85 @@ class MainViewModel @Inject constructor(val app: Application,
 
     fun sendHorizontalRotation() {
         sendMessageRepository.sendYawSpeed(horizontalRotation.value!!)
+    }
+
+    fun sendData() {
+        var i = 0
+        val timer = Timer()
+        val timerTask = object : TimerTask() {
+            override fun run() {
+                when (i) {
+                    0 -> {
+                        sendSlideSpeed()
+                    }
+                    1 -> {
+                        sendHorizontalRotation()
+                    }
+                    2 -> {
+                        sendMessageRepository.sendPhotoNumber(takeNumbers.value!!.toInt())
+                    }
+                    3 -> {
+                        sendMessageRepository.sendPhotoInterval(spaceTime.value!!.toFloat())
+
+                    }
+                    4 -> {
+                        sendMessageRepository.sendPhotoShutter(buttonTimes.value!!.toFloat())
+                    }
+                    5 -> {
+                        timer.cancel()
+                    }
+                }
+                i++
+            }
+        }
+        timer.schedule(timerTask, 100, 100)
+    }
+
+    fun after(s: Editable, index: Int) {
+        val str = s.toString()
+        when (index) {
+            1 -> {
+                try {
+                    val toFloat = str.toFloat()
+                    if (str != spaceTime.value) {
+                        SPUtils.put("spaceTime", s)
+                        spaceTime.value = str
+                        sendMessageRepository.sendPhotoInterval(toFloat)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+            2 -> {
+                try {
+                    val toFloat = str.toInt()
+                    if (str != takeNumbers.value) {
+                        SPUtils.put("takeNumbers", s)
+                        takeNumbers.value = str
+                        sendMessageRepository.sendPhotoNumber(toFloat)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            3 -> {
+                try {
+                    val toFloat = str.toFloat()
+                    if (str != buttonTimes.value) {
+                        SPUtils.put("buttonTimes", s)
+                        buttonTimes.value = str
+                        sendMessageRepository.sendPhotoShutter(toFloat)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun cancelTimer() {
+        timerFinishTime.cancel()
     }
 
 }

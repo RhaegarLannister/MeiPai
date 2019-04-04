@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.rhaegar.meipai.R
@@ -35,17 +34,18 @@ class DelayFragment: BaseFragment() {
         fragmentDelayBinding.lifecycleOwner=this
         fragmentDelayBinding.viewModel=mViewModel
 
-        mViewModel.spaceTime.observe(this, Observer {
+        /*mViewModel.spaceTime.observe(this, Observer {
             mViewModel.textToFloat(it,mViewModel.spaceTime)
         })
 
         mViewModel.takeNumbers.observe(this, Observer {
+            L.e("到了这里")
             mViewModel.textToInt(it,mViewModel.takeNumbers)
         })
 
         mViewModel.buttonTimes.observe(this, Observer {
             mViewModel.textToFloat(it,mViewModel.buttonTimes)
-        })
+        })*/
 
 
 

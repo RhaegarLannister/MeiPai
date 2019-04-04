@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.app.Service
 import com.rhaegar.meipai.di.AppInjector
+import com.tencent.bugly.Bugly
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -34,6 +35,7 @@ class App : Application(), HasActivityInjector, HasServiceInjector {
         app = this
         super.onCreate()
         AppInjector.init(this)
+        Bugly.init(applicationContext, "fb0f2527a3", false)
     }
 
     override fun activityInjector() = dispatchingAndroidInjector

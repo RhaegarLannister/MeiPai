@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@{viewModel.title}"
-                android:layout_marginTop="60dp"
+                android:layout_marginTop="30dp"
                 android:textSize="20sp"
                 android:textColor="@color/color_484848"
         />
@@ -55,26 +55,27 @@
         -->
 
 
-        <com.google.android.material.tabs.TabLayout android:layout_width="match_parent"
-                                                    app:tabIndicatorHeight="0dp"
-                                                    android:id="@+id/tabLayout"
-                                                    app:tabMode="fixed"
-                                                    app:tabBackground="@android:color/transparent"
-                                                    app:tabRippleColor="@android:color/transparent"
-                                                    android:layout_height="80dp"/>
+
+            <com.google.android.material.tabs.TabLayout android:layout_width="match_parent"
+                                                        app:tabIndicatorHeight="0dp"
+                                                        android:id="@+id/tabLayout"
+                                                        app:tabMode="fixed"
+                                                        app:tabBackground="@android:color/transparent"
+                                                        app:tabRippleColor="@android:color/transparent"
+                                                        android:layout_height="80dp"/>
 
 
+            <com.rhaegar.meipai.ui.main.NoScrollViewPager
+                    android:layout_marginTop="24dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:id="@+id/vpContent"
+                    android:adapter="@{adapter}"
+                    app:viewPageChange="@{viewModel}"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+            />
 
-        <com.rhaegar.meipai.ui.main.NoScrollViewPager
-                android:layout_marginTop="40dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
-                android:id="@+id/vpContent"
-                android:adapter="@{adapter}"
-                app:viewPageChange="@{viewModel}"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-        />
 
 
     </LinearLayout>

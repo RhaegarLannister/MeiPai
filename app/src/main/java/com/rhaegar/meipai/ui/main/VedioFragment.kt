@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.rhaegar.meipai.R
 import com.rhaegar.meipai.base.BaseFragment
 import com.rhaegar.meipai.databinding.FragmentVedioBinding
+import com.rhaegar.meipai.util.SPUtils
 import javax.inject.Inject
 
 /**
@@ -33,6 +35,14 @@ class VedioFragment: BaseFragment() {
         fragmentVedioBinding=DataBindingUtil.inflate(inflater, R.layout.fragment_vedio,container,false)
         fragmentVedioBinding.viewModel=mViewModel
         fragmentVedioBinding.lifecycleOwner=this
+
+        mViewModel.slideSpeed.observe(this, Observer {
+            SPUtils.put("slideSpeed",it)
+        })
+        mViewModel.horizontalRotation.observe(this, Observer {
+            SPUtils.put("horizontalRotation",it)
+        })
+
         return fragmentVedioBinding.root
 
     }

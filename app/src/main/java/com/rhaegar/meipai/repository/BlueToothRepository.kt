@@ -12,7 +12,6 @@ import com.rhaegar.meipai.App.Companion.app
 import com.rhaegar.meipai.bean.BleDevice
 import com.rhaegar.meipai.util.L
 import dagger.android.DaggerService
-import org.json.JSONObject
 import java.util.*
 import javax.inject.Inject
 
@@ -78,6 +77,7 @@ class BlueToothRepository : DaggerService() {
     }
 
     fun search() {
+        stopScan()
         bluetoothAdapter.startLeScan(arrayOf(UUID_SERVICE), mLeScanCallback)
     }
 
@@ -143,16 +143,13 @@ class BlueToothRepository : DaggerService() {
 
     private val mGattCallback = object : BluetoothGattCallback() {
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            L.e("onConnectionStateChange")
             L.e(Thread.currentThread().name)
             gatt.discoverServices()
             if (status == BluetoothGatt.GATT_SUCCESS) {
 
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    L.e("onConnectionStateChange1111")
                     gatt.discoverServices()
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    L.e("onConnectionStateChange2222")
                     mBluetoothGatt?.close()
                     mBluetoothGatt = null
                     broadcastUpdate(ACTION_GATT_DISCONNECTED)
@@ -161,14 +158,11 @@ class BlueToothRepository : DaggerService() {
         }
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-            L.e("onServicesDiscovered")
             L.e(Thread.currentThread().name)
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                L.e("onServicesDiscovered1111")
                 findService(gatt.services)
             } else {
-                L.e("onServicesDiscovered2222")
                 if (mBluetoothGatt?.device?.uuids == null) {
 
                 }
@@ -180,7 +174,6 @@ class BlueToothRepository : DaggerService() {
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
-            L.e("onCharacteristicRead")
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 onReadData(characteristic)
@@ -191,7 +184,6 @@ class BlueToothRepository : DaggerService() {
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
-            L.e("onCharacteristicChanged")
             onReadData(characteristic)
         }
 
@@ -199,7 +191,6 @@ class BlueToothRepository : DaggerService() {
             gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
-            L.e("onCharacteristicWrite")
 
         }
 
@@ -208,7 +199,6 @@ class BlueToothRepository : DaggerService() {
             bd: BluetoothGattDescriptor,
             status: Int
         ) {
-            L.e("onDescriptorRead")
 
         }
 
@@ -217,35 +207,27 @@ class BlueToothRepository : DaggerService() {
             bd: BluetoothGattDescriptor,
             status: Int
         ) {
-            L.e("onDescriptorWrite")
 
         }
 
         override fun onReadRemoteRssi(gatt: BluetoothGatt, a: Int, b: Int) {
-            L.e("onReadRemoteRssi")
 
         }
 
         override fun onReliableWriteCompleted(gatt: BluetoothGatt, a: Int) {
-            L.e("onReliableWriteCompleted")
         }
+
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        mBluetoothGatt?.disconnect()
+        return super.onUnbind(intent)
 
     }
 
     private fun onReadData(characteristic: BluetoothGattCharacteristic) {
         val str = String(characteristic.value)
         broadcastUpdate(ACTION_DATA_AVAILABLE,str)
-        L.e(str)
-        try {
-            if (str.contains("PhotoFinishNum")) {
-                val jsonObject = JSONObject(str)
-                val int = jsonObject.getInt("PhotoFinishNum")
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-
     }
 
     private fun broadcastUpdate(action: String) {

@@ -30,8 +30,9 @@
                       android:padding="8dp"
                       android:background="@drawable/seekbar"
                       android:textColor="@color/color_9d9d9d"
-                      android:inputType="number"
-                      android:text="@={viewModel.spaceTime}"
+                      android:inputType="numberDecimal"
+                      android:text="@{viewModel.spaceTime}"
+                      android:afterTextChanged="@{(s)->viewModel.after(s,1)}"
                       android:textSize="14sp"
                       android:layout_height="wrap_content"/>
 
@@ -57,7 +58,8 @@
                       android:background="@drawable/seekbar"
                       android:textColor="@color/color_9d9d9d"
                       android:inputType="number"
-                      android:text="@={viewModel.takeNumbers}"
+                      android:afterTextChanged="@{(s)->viewModel.after(s,2)}"
+                      android:text="@{viewModel.takeNumbers}"
                       android:textSize="14sp"
                       android:layout_height="wrap_content"/>
 
@@ -139,8 +141,9 @@
                       android:padding="8dp"
                       android:background="@drawable/seekbar"
                       android:textColor="@color/color_9d9d9d"
-                      android:inputType="number"
-                      android:text="@={viewModel.buttonTimes}"
+                      android:inputType="numberDecimal"
+                      android:text="@{viewModel.buttonTimes}"
+                      android:afterTextChanged="@{(s)->viewModel.after(s,3)}"
                       android:textSize="14sp"
                       android:layout_height="wrap_content"/>
 
@@ -153,6 +156,10 @@
                    android:layout_gravity="center_horizontal"
                    android:layout_marginTop="40dp"
                    android:layout_height="80dp"/>
+
+        <TextView android:layout_width="match_parent"
+                  android:text="@{viewModel.recText}"
+                  android:layout_height="wrap_content"/>
     </LinearLayout>
 </layout>
 
