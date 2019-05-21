@@ -6,7 +6,10 @@
         <variable name="viewModel" type="com.rhaegar.meipai.ui.main.MainViewModel"/>
     </data>
 
-
+    <androidx.core.widget.NestedScrollView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="vertical"
                   android:layout_width="match_parent"
@@ -14,7 +17,7 @@
 
 
         <LinearLayout android:layout_width="match_parent"
-                      android:gravity="center_vertical"
+                      android:gravity="bottom"
                       android:orientation="horizontal"
                       android:layout_height="wrap_content">
 
@@ -23,22 +26,32 @@
                       android:textSize="14sp"
                       android:text="@string/slide_rail_speed"
                       android:layout_height="wrap_content"/>
+            <LinearLayout android:layout_width="match_parent"
+                          android:gravity="center"
+                          android:orientation="vertical" android:layout_height="wrap_content">
 
+                <TextView android:layout_width="wrap_content"
+                          android:textColor="@color/color_3c3c3c"
+                          android:textSize="14sp"
+                          android:text='@{""+viewModel.slideSpeed+@string/percent}'
+                          android:layout_height="wrap_content"/>
             <SeekBar
                     android:layout_width="match_parent"
                     android:layout_marginLeft="16dp"
                     android:max="100"
+                    android:splitTrack="false"
+                    android:layout_marginRight="16dp"
                     android:thumb="@drawable/ic_vedio_arow_light"
                     android:progress="@={viewModel.slideSpeed}"
                     android:onStopTrackingTouch="@{()->viewModel.sendSlideSpeed()}"
                     android:progressDrawable="@drawable/seekbar"
                     android:layout_height="wrap_content"/>
 
-
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout android:layout_width="match_parent"
-                      android:gravity="center_vertical"
+                      android:gravity="bottom"
                       android:layout_marginTop="40dp"
                       android:orientation="horizontal"
                       android:layout_height="wrap_content">
@@ -49,25 +62,101 @@
                       android:text="@string/horizontal_rotation"
                       android:layout_height="wrap_content"/>
 
-            <SeekBar
-                    android:layout_width="match_parent"
-                    android:layout_marginLeft="16dp"
-                    android:max="100"
-                    android:progress="@={viewModel.horizontalRotation}"
-                    android:onStopTrackingTouch="@{()->viewModel.sendHorizontalRotation()}"
-                    android:thumb="@drawable/ic_vedio_arow_light"
-                    android:progressDrawable="@drawable/seekbar"
-                    android:layout_height="wrap_content"/>
+            <LinearLayout android:layout_width="match_parent"
+                          android:gravity="center"
+                          android:orientation="vertical" android:layout_height="wrap_content">
+
+                <TextView android:layout_width="wrap_content"
+                          android:textColor="@color/color_3c3c3c"
+                          android:textSize="14sp"
+                          android:text='@{""+viewModel.horizontalRotation+@string/percent}'
+                          android:layout_height="wrap_content"/>
+
+                <SeekBar
+                        android:id="@+id/sb"
+                        android:layout_width="match_parent"
+                        android:layout_marginRight="16dp"
+                        android:layout_marginLeft="16dp"
+                        android:max="100"
+                        android:splitTrack="false"
+                        android:progress="@={viewModel.horizontalRotation}"
+                        android:onStopTrackingTouch="@{()->viewModel.sendHorizontalRotation()}"
+                        android:thumb="@drawable/ic_vedio_arrow"
+                        android:progressDrawable="@drawable/seekbar"
+                        android:layout_height="wrap_content"/>
+            </LinearLayout>
+
         </LinearLayout>
 
+        <CheckBox android:layout_width="match_parent"
+                  android:text="@string/tow_time"
+                  android:layout_marginTop="16dp"
+                  android:button="@drawable/bg_cb"
+                  android:layout_marginLeft="32dp"
+                  android:checked="@={viewModel.cb}"
+                  android:layout_height="wrap_content"/>
+        
+        <LinearLayout android:layout_width="match_parent" 
+                      android:orientation="horizontal"
+                      android:layout_marginTop="32dp"
+                      android:gravity="center"
+                      android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="wrap_content"
+                          android:orientation="vertical"
+                          android:gravity="center"
+                          android:layout_height="wrap_content">
+                <com.rhaegar.meipai.ui.main.LongClickButton2 android:layout_width="60dp"
+                                                             app:imageBacRes="@{1}"
+                                                             app:cancelListener="@{()->{viewModel.onCancel(5)}}"
+                                                             android:onClick="@{()->viewModel.longClick(5)}"
+                                                             app:imageBac="@{viewModel.videoToA}"
+                                                             android:layout_height="60dp"/>
 
-        <ImageView android:layout_width="80dp"
-                   android:onClick="@{()->viewModel.startOrPauseTakeVideo()}"
-                   android:src="@{viewModel.isTakeVideo?@drawable/icon_take_vedio_stop:@drawable/ic_take_vedio_light}"
-                   android:layout_gravity="center_horizontal"
-                   android:layout_marginTop="80dp"
-                   android:layout_height="80dp"/>
+                <TextView android:layout_width="wrap_content"
+                          android:textColor="@color/color_3c3c3c"
+                          android:textSize="14sp"
+                          android:text="A"
+                          android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <ImageView android:layout_width="80dp"
+                       android:layout_marginLeft="32dp"
+                       android:layout_marginRight="32dp"
+                       android:onClick="@{()->viewModel.startOrPauseTakeVideo()}"
+                       android:src="@{viewModel.isTakeVideo?@drawable/icon_take_vedio_stop:@drawable/ic_take_vedio_light}"
+                       android:layout_gravity="center_horizontal"
+                       android:layout_height="80dp"/>
+            <LinearLayout android:layout_width="wrap_content"
+                          android:orientation="vertical"
+                          android:gravity="center"
+                          android:layout_height="wrap_content">
+                <com.rhaegar.meipai.ui.main.LongClickButton2 android:layout_width="60dp"
+                                                             app:cancelListener="@{()->{viewModel.onCancel(6)}}"
+                                                             android:onClick="@{()->viewModel.longClick(6)}"
+                                                             app:imageBac="@{viewModel.videoToB}"
+                                                             app:imageBacRes="@{2}"
+                                                             android:layout_height="60dp"/>
+
+                <TextView android:layout_width="wrap_content"
+                          android:textColor="@color/color_3c3c3c"
+                          android:textSize="14sp"
+                          android:text="B"
+                          android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView android:layout_width="80dp"
+                  android:layout_marginTop="16dp"
+                  android:textSize="16sp"
+                  android:layout_gravity="center"
+                  android:textColor="@color/color_3c3c3c"
+                  android:onClick="@{()->viewModel.takePhotoVideoPage()}"
+                  android:background="@drawable/ic_shutter_dark"
+                  android:gravity="center"
+                  android:layout_height="80dp"/>
+
+
 
     </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>
 

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -78,8 +79,8 @@ class MainActivity : AppCompatActivity() , HasSupportFragmentInjector {
 
         val observer= Observer<Int> {
 
-            if (((mViewModel.startPositionValue.value==5||mViewModel.startPositionValue.value==6)&&(mViewModel.rotatePositionValue.value==1||mViewModel.rotatePositionValue.value==5||mViewModel.rotatePositionValue.value==6))||
-                ((mViewModel.rotatePositionValue.value==5||mViewModel.rotatePositionValue.value==6)&&(mViewModel.startPositionValue.value==1||mViewModel.startPositionValue.value==5||mViewModel.startPositionValue.value==6))
+            if (((mViewModel.startPositionValue.value==1||mViewModel.startPositionValue.value==5||mViewModel.startPositionValue.value==6)&&(mViewModel.rotatePositionValue.value==1||mViewModel.rotatePositionValue.value==5||mViewModel.rotatePositionValue.value==6))||
+                ((mViewModel.rotatePositionValue.value==1||mViewModel.rotatePositionValue.value==5||mViewModel.rotatePositionValue.value==6)&&(mViewModel.startPositionValue.value==1||mViewModel.startPositionValue.value==5||mViewModel.startPositionValue.value==6))
                     ){
                 (activityMainBinding.tabLayout.getTabAt(1)?.view as View).setOnTouchListener {_,_->
                     return@setOnTouchListener false
@@ -90,10 +91,12 @@ class MainActivity : AppCompatActivity() , HasSupportFragmentInjector {
                 }
             }else{
                 (activityMainBinding.tabLayout.getTabAt(1)?.view as View).setOnTouchListener {_,_->
+                    showToast()
                     return@setOnTouchListener mViewModel.isClickCancel.value==false
                 }
 
                 (activityMainBinding.tabLayout.getTabAt(2)?.view as View).setOnTouchListener {_,_->
+                    showToast()
                     return@setOnTouchListener mViewModel.isClickCancel.value==false
                 }
             }
@@ -113,6 +116,11 @@ class MainActivity : AppCompatActivity() , HasSupportFragmentInjector {
 
         }
         timer.schedule(task,0,3000)
+    }
+
+    private val toast:Toast by lazy { Toast.makeText(this,getString(R.string.nees_settings_ab),Toast.LENGTH_LONG) }
+    private fun showToast() {
+        toast.show()
     }
 
     override fun onDestroy() {
@@ -150,24 +158,30 @@ class MainActivity : AppCompatActivity() , HasSupportFragmentInjector {
                         val jsonObject = JSONObject(s)
                         val int = jsonObject.getInt("PhotoFinishNum")
                         mViewModel.finishNumbersValue.value=int
-                        if (int==mViewModel.takeNumbers.value?.toInt()){
-                            mViewModel.cancelTimer()
-                        }
                     }else if (s.contains("PhotoCtrl")){
                         val jsonObject = JSONObject(s)
                         val b = jsonObject.getBoolean("PhotoCtrl")
                         mViewModel.isTakeDelayVideo.value = b
-                        mViewModel.startTime = System.currentTimeMillis()
-                        if (b){
-                            mViewModel.startTimer()
-                        }else{
-                            mViewModel.cancelTimer()
-                        }
                     }else if (s.contains("VideoCtrl")){
                         val jsonObject = JSONObject(s)
                         val b = jsonObject.getBoolean("VideoCtrl")
                         mViewModel.isTakeVideo.value = b
-
+                    }else if (s.contains("VideoToA")){
+                        val jsonObject = JSONObject(s)
+                        val b = jsonObject.getBoolean("VideoToA")
+                        mViewModel.videoToA(b)
+                    }else if (s.contains("VideoToB")){
+                        val jsonObject = JSONObject(s)
+                        val b = jsonObject.getBoolean("VideoToB")
+                        mViewModel.videoToB(b)
+                    }else if (s.contains("PhotoToA")){
+                        val jsonObject = JSONObject(s)
+                        val b = jsonObject.getBoolean("PhotoToA")
+                        mViewModel.photoToA(b)
+                    }else if (s.contains("PhotoToB")){
+                        val jsonObject = JSONObject(s)
+                        val b = jsonObject.getBoolean("PhotoToB")
+                        mViewModel.photoToB(b)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

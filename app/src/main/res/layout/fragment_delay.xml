@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable name="viewModel" type="com.rhaegar.meipai.ui.main.MainViewModel"/>
     </data>
 
+
+    <androidx.core.widget.NestedScrollView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="vertical"
@@ -150,16 +155,61 @@
 
         </LinearLayout>
 
-        <ImageView android:layout_width="80dp"
-                   android:onClick="@{()->viewModel.startOrPauseTakeDelayVideo()}"
-                   android:src="@{viewModel.isTakeDelayVideo?@drawable/icon_take_vedio_stop:@drawable/ic_take_vedio_light}"
-                   android:layout_gravity="center_horizontal"
-                   android:layout_marginTop="40dp"
-                   android:layout_height="80dp"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:orientation="horizontal"
+                      android:layout_marginTop="32dp"
+                      android:gravity="center"
+                      android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="wrap_content"
+                          android:orientation="vertical"
+                          android:gravity="center"
+                          android:layout_height="wrap_content">
+                <com.rhaegar.meipai.ui.main.LongClickButton2 android:layout_width="60dp"
+                                                             app:cancelListener="@{()->{viewModel.onCancel(7)}}"
+                                                             android:onClick="@{()->viewModel.longClick(7)}"
+                                                             app:imageBac="@{viewModel.photoToA}"
+                                                             app:imageBacRes="@{1}"
+                                                             android:layout_height="60dp"/>
+
+                <TextView android:layout_width="wrap_content"
+                          android:textColor="@color/color_3c3c3c"
+                          android:textSize="14sp"
+                          android:text="A"
+                          android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <ImageView android:layout_width="80dp"
+                       android:onClick="@{()->viewModel.startOrPauseTakeDelayVideo()}"
+                       android:src="@{viewModel.isTakeDelayVideo?@drawable/icon_take_vedio_stop:@drawable/ic_take_vedio_light}"
+                       android:layout_gravity="center_horizontal"
+                       android:layout_marginLeft="32dp"
+                       android:layout_marginRight="32dp"
+                       android:layout_height="80dp"/>
+            <LinearLayout android:layout_width="wrap_content"
+                          android:orientation="vertical"
+                          android:gravity="center"
+                          android:layout_height="wrap_content">
+                <com.rhaegar.meipai.ui.main.LongClickButton2 android:layout_width="60dp"
+                                                             app:cancelListener="@{()->{viewModel.onCancel(8)}}"
+                                                             android:onClick="@{()->viewModel.longClick(8)}"
+                                                             app:imageBac="@{viewModel.photoToB}"
+                                                             app:imageBacRes="@{2}"
+                                                             android:layout_height="60dp"/>
+
+                <TextView android:layout_width="wrap_content"
+                          android:textColor="@color/color_3c3c3c"
+                          android:textSize="14sp"
+                          android:text="B"
+                          android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
 
         <TextView android:layout_width="match_parent"
                   android:text="@{viewModel.recText}"
+                  android:visibility="gone"
                   android:layout_height="wrap_content"/>
     </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>
 

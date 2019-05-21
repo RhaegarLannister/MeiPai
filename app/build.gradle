@@ -30,14 +30,28 @@ android {
         applicationId "com.rhaegar.meipai"
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
+    signingConfigs {
         release {
+            storeFile file('../tools/MeiPai.jks')
+            storePassword "meipai@2019"
+            keyAlias "MeiPai"
+            keyPassword "meipai@2019"
+        }
+    }
+    buildTypes {
+        debug {
             minifyEnabled false
+            debuggable true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release.initWith(buildTypes.debug)
+        release {
+            debuggable false
         }
     }
     dataBinding {

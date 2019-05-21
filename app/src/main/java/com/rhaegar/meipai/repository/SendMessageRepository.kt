@@ -183,4 +183,70 @@ class SendMessageRepository @Inject constructor(val app: Application){
         return json
     }
 
+    fun sendArriveSame(it: Boolean):String {
+        val hashMap = HashMap<String, Any>()
+        hashMap["ArriveSame"]=it
+        val json = gson.toJson(hashMap)
+        val intent = Intent()
+        intent.action=BlueToothRepository.ACTION_SEND_MESSAGE
+        intent.putExtra(BlueToothRepository.EXTRA_DATA,json)
+        app.sendBroadcast(intent)
+        return json
+    }
+
+    fun sendVideoToA(it: Boolean):String {
+        val hashMap = HashMap<String, Any>()
+        hashMap["VideoToA"]=it
+        val json = gson.toJson(hashMap)
+        val intent = Intent()
+        intent.action=BlueToothRepository.ACTION_SEND_MESSAGE
+        intent.putExtra(BlueToothRepository.EXTRA_DATA,json)
+        app.sendBroadcast(intent)
+        return json
+    }
+
+    fun sendVideoToB(it: Boolean):String {
+        val hashMap = HashMap<String, Any>()
+        hashMap["VideoToB"]=it
+        val json = gson.toJson(hashMap)
+        val intent = Intent()
+        intent.action=BlueToothRepository.ACTION_SEND_MESSAGE
+        intent.putExtra(BlueToothRepository.EXTRA_DATA,json)
+        app.sendBroadcast(intent)
+        return json
+    }
+
+    fun sendVideoTakePhoto(b: Boolean):String {
+        val hashMap = HashMap<String, Any>()
+        hashMap["VideoTakePhoto"]=b
+        val json = gson.toJson(hashMap)
+        val intent = Intent()
+        intent.action=BlueToothRepository.ACTION_SEND_MESSAGE
+        intent.putExtra(BlueToothRepository.EXTRA_DATA,json)
+        app.sendBroadcast(intent)
+        return json
+    }
+
+    fun sendPhotoToA(it: Boolean):String {
+        val hashMap = HashMap<String, Any>()
+        hashMap["PhotoToA"]=it
+        val json = gson.toJson(hashMap)
+        val intent = Intent()
+        intent.action=BlueToothRepository.ACTION_SEND_MESSAGE
+        intent.putExtra(BlueToothRepository.EXTRA_DATA,json)
+        app.sendBroadcast(intent)
+        return json
+    }
+
+    fun sendPhotoToB(it: Boolean):String {
+        val hashMap = HashMap<String, Any>()
+        hashMap["PhotoToB"]=it
+        val json = gson.toJson(hashMap)
+        val intent = Intent()
+        intent.action=BlueToothRepository.ACTION_SEND_MESSAGE
+        intent.putExtra(BlueToothRepository.EXTRA_DATA,json)
+        app.sendBroadcast(intent)
+        return json
+    }
+
 }

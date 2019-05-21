@@ -18,7 +18,7 @@
     <string name="rotate_start_position_setting_b">旋转起点(B)设置中</string>
     <string name="rotate_start_position_setting_4">旋转起点已设置</string>
     <string name="slide_rail_speed">滑轨\n速度</string>
-    <string name="horizontal_rotation">水平\n旋转</string>
+    <string name="horizontal_rotation">旋转\n速度</string>
     <string name="space_time">间隔时间(秒)</string>
     <string name="take_numbers">拍摄张数(张)</string>
     <string name="finish_numbers">完成张数</string>
@@ -27,4 +27,8 @@
     <string name="finish_numbers_value">%1$d张/%2$d张</string>
     <string name="finish_time_value">%1$d分%2$d秒</string>
     <string name="percent">%</string>
+    <string name="tow_time">两轴是否同时到达</string>
+    <string name="start_position_setting_6">滑轨A、B点已经设置完成</string>
+    <string name="rotate_start_position_setting_6">旋转A、B点已经设置完成</string>
+    <string name="nees_settings_ab">要把起终点设置完成后或点击“取消”按键，才允许其他操作</string>
 </resources>

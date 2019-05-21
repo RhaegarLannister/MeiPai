@@ -43,6 +43,12 @@ class VedioFragment: BaseFragment() {
             SPUtils.put("horizontalRotation",it)
         })
 
+        mViewModel.cb.observe(this, Observer {
+            SPUtils.put("cb",it)
+            fragmentVedioBinding.sb.isEnabled=!it
+            mViewModel.sendArriveSame(it)
+        })
+
         return fragmentVedioBinding.root
 
     }

@@ -33,12 +33,12 @@ class MainViewModel @Inject constructor(
         return@switchMap data
     }//当前选择页面标题
 
-    val startPositionValue = MutableLiveData<Int>()//起始位置设置状态 1 2 3 4 5
-    val rotatePositionValue = MutableLiveData<Int>()//旋转位置设置状态 1 2 3 4 5
+    val startPositionValue = MutableLiveData<Int>()//起始位置设置状态 1未设置 2调整A 3确定A 4调整B 5确定B 6再次调整A
+    val rotatePositionValue = MutableLiveData<Int>()//旋转位置设置状态 1 2 3 4 5 6
 
     val startPositionClickAble: LiveData<Boolean> = Transformations.switchMap(rotatePositionValue) {
         val data = MutableLiveData<Boolean>()
-        data.value = it == 1 || it == 5
+        data.value = /*it == 1 || it == 5*/true
         data
     }//滑轨起点是否可以设置
 
@@ -50,7 +50,7 @@ class MainViewModel @Inject constructor(
 
     val rotatePositionClickAble: LiveData<Boolean> = Transformations.switchMap(startPositionValue) {
         val data = MutableLiveData<Boolean>()
-        data.value = it == 1 || it == 5
+        data.value = /*it == 1 || it == 5*/true
         data
     }//旋转起点是否可以设置
 
@@ -68,11 +68,14 @@ class MainViewModel @Inject constructor(
             1 -> {
                 liveData.value = app.getString(R.string.start_position_setting_1)
             }
-            2, 5, 6 -> {
+            2, 6 -> {
                 liveData.value = app.getString(R.string.start_position_setting_a)
             }
             3, 4 -> {
                 liveData.value = app.getString(R.string.start_position_setting_b)
+            }
+            5 -> {
+                liveData.value = app.getString(R.string.start_position_setting_6)
             }
 
         }
@@ -85,11 +88,14 @@ class MainViewModel @Inject constructor(
             1 -> {
                 liveData.value = app.getString(R.string.rotate_start_position_setting_1)
             }
-            2, 5, 6 -> {
+            2, 6 -> {
                 liveData.value = app.getString(R.string.rotate_start_position_setting_a)
             }
             3, 4 -> {
                 liveData.value = app.getString(R.string.rotate_start_position_setting_b)
+            }
+            5 -> {
+                liveData.value = app.getString(R.string.rotate_start_position_setting_6)
             }
         }
         liveData
@@ -100,7 +106,7 @@ class MainViewModel @Inject constructor(
     val horizontalRotation = MutableLiveData<Int>()//水平旋转值
 
     val isTakeVideo = MutableLiveData<Boolean>()//是否正在拍摄
-
+    var cb = MutableLiveData<Boolean>()//两轴是否同时到达
 
     val spaceTime = MutableLiveData<String>()//拍摄间隔
     val takeNumbers = MutableLiveData<String>()//拍摄张数
@@ -111,17 +117,20 @@ class MainViewModel @Inject constructor(
 
     val finishNumbersValue = MutableLiveData<Int>()//完成张数
 
-    val finishTimesValue = MutableLiveData<Long>()//完成时间
 
     var finishNumbers: LiveData<String>
 
 
-    var startTime = System.currentTimeMillis()
 
-    val finishTimes: LiveData<String> = Transformations.switchMap(finishTimesValue) {
+    val finishTimes: LiveData<String> = Transformations.switchMap(takeNumbers) {
         val liveData = MutableLiveData<String>()
-        val s = (it - startTime) / 1000
-        liveData.value = app.getString(R.string.finish_time_value, s / 60, s % 60)
+        if (spaceTime.value!=null&&buttonTimes.value!=null){
+            val s=(spaceTime.value!!.toInt()+buttonTimes.value!!.toInt())*it.toInt()
+            liveData.value = app.getString(R.string.finish_time_value, s / 60, s % 60)
+        }else{
+            val s=0
+            liveData.value = app.getString(R.string.finish_time_value, s / 60, s % 60)
+        }
         liveData
     }//完成时间
 
@@ -130,6 +139,10 @@ class MainViewModel @Inject constructor(
 
     val isTakeDelayVideo = MutableLiveData<Boolean>()//是否正在拍摄延迟
 
+    val videoToA= MutableLiveData<Boolean>()
+    val videoToB= MutableLiveData<Boolean>()
+    val photoToA= MutableLiveData<Boolean>()
+    val photoToB= MutableLiveData<Boolean>()
 
     init {
         index.value = 0
@@ -137,6 +150,7 @@ class MainViewModel @Inject constructor(
         rotatePositionValue.value = 1
         slideSpeed.value = SPUtils["slideSpeed", 80] as Int
         horizontalRotation.value = SPUtils["horizontalRotation", 60] as Int
+        cb.value = SPUtils["cb", false] as Boolean
 
         isTakeVideo.value = false
         isTakeDelayVideo.value = false
@@ -149,7 +163,6 @@ class MainViewModel @Inject constructor(
         spaceTime.postValue(SPUtils["spaceTime", "40"] as String)
         takeNumbers.postValue(SPUtils["takeNumbers", "50"] as String)
 
-        finishTimesValue.value = System.currentTimeMillis()
         finishNumbers = Transformations.switchMap(finishNumbersValue) {
             val liveData = MutableLiveData<String>()
             liveData.value = app.getString(R.string.finish_numbers_value, it, takeNumbers.value?.toInt() ?: 0)
@@ -161,21 +174,29 @@ class MainViewModel @Inject constructor(
 
             val value = ((it / (takeNumbers.value?.toFloat() ?: it.toFloat())) * 100).toInt()
             liveData.value = value
+            if (value==100){
+                isTakeDelayVideo.value=false
+            }
             return@switchMap liveData
         }
 
         recText.value = "未收到数据"
+
+        videoToA.value=false
+        videoToB.value=false
+        photoToA.value=false
+        photoToB.value=false
     }
 
 
     private fun getTitleByIndex(index: Int): String {
 
-        if (index!=1){
+        if (index != 1) {
             isTakeVideo.value = false
             sendMessageRepository.sendVideoCtrl(false)
         }
 
-        if (index!=2){
+        if (index != 2) {
             isTakeDelayVideo.value = false
             sendMessageRepository.sendPhotoCtrl(false)
         }
@@ -199,6 +220,8 @@ class MainViewModel @Inject constructor(
         if (position == 0) {
             startPositionValue.value = 1
             rotatePositionValue.value = 1
+        }else{
+            sendData()
         }
     }
 
@@ -211,23 +234,9 @@ class MainViewModel @Inject constructor(
 
     }
 
-    private val timerFinishTime=Timer()
-    fun startTimer() {
-        val task = object : TimerTask() {
-            override fun run() {
-                finishTimesValue.postValue(System.currentTimeMillis())
-            }
-        }
-        timerFinishTime.schedule(task, 0, 1000)
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        timerFinishTime.cancel()
-    }
 
     fun longClick(index: Int) {
+        isClickCancel.value = false
         when (index) {
             1, 2 -> {
                 when (startPositionValue.value) {
@@ -285,6 +294,20 @@ class MainViewModel @Inject constructor(
                     sendMessageRepository.sendYawRightMove(true)
                 }
             }
+            5, 6 -> {
+                if (index == 5) {
+                    sendMessageRepository.sendVideoToA(true)
+                } else {
+                    sendMessageRepository.sendVideoToB(true)
+                }
+            }
+            7, 8 -> {
+                if (index == 7) {
+                    sendMessageRepository.sendPhotoToA(true)
+                } else {
+                    sendMessageRepository.sendPhotoToB(true)
+                }
+            }
         }
     }
 
@@ -331,6 +354,12 @@ class MainViewModel @Inject constructor(
     }
 
 
+    fun takePhotoVideoPage() {
+        L.e("拍照 视频页面")
+        sendMessageRepository.sendVideoTakePhoto(true)
+    }
+
+
     fun onCancel(arowId: Int) {
         when (arowId) {
             1 -> {
@@ -345,6 +374,19 @@ class MainViewModel @Inject constructor(
             4 -> {
                 sendMessageRepository.sendYawRightMove(false)
             }
+            5 -> {
+                sendMessageRepository.sendVideoToA(false)
+            }
+            6 -> {
+                sendMessageRepository.sendVideoToB(false)
+            }
+            7 -> {
+                sendMessageRepository.sendPhotoToA(false)
+            }
+            8 -> {
+                sendMessageRepository.sendPhotoToB(false)
+            }
+
         }
 
     }
@@ -379,7 +421,10 @@ class MainViewModel @Inject constructor(
                     4 -> {
                         sendMessageRepository.sendPhotoShutter(buttonTimes.value!!.toFloat())
                     }
-                    5 -> {
+                    5->{
+                        sendArriveSame(cb.value==true)
+                    }
+                    6 -> {
                         timer.cancel()
                     }
                 }
@@ -432,8 +477,36 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun cancelTimer() {
-        timerFinishTime.cancel()
+    fun sendArriveSame(it: Boolean) {
+        sendMessageRepository.sendArriveSame(it)
+    }
+
+    fun videoToA(b: Boolean) {
+        videoToA.value=b
+        if (b){
+            videoToB.value=false
+        }
+    }
+
+    fun videoToB(b: Boolean) {
+        videoToB.value=b
+        if (b){
+            videoToA.value=false
+        }
+    }
+
+    fun photoToA(b: Boolean) {
+        photoToA.value=b
+        if (b){
+            photoToB.value=false
+        }
+    }
+
+    fun photoToB(b: Boolean) {
+        photoToB.value=b
+        if (b){
+            photoToA.value=false
+        }
     }
 
 }

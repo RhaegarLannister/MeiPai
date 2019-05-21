@@ -1,10 +1,11 @@
 package com.rhaegar.meipai.ui.main;
 
-import android.widget.ImageView;
+import android.view.View;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.BindingMethod;
 import androidx.databinding.BindingMethods;
 import androidx.viewpager.widget.ViewPager;
+import com.rhaegar.meipai.R;
 
 /**
  * Author: Li Hai Kun
@@ -19,9 +20,21 @@ import androidx.viewpager.widget.ViewPager;
 public class ViewAdapter {
 
 
-    @BindingAdapter("imageRes")
-    public static void setImageRes(ImageView iv,int id){
-        iv.setImageResource(id);
+    @BindingAdapter({"imageBac","imageBacRes"})
+    public static void setImageRes(View iv, boolean select,int res){
+        if (iv.isPressed()||select){
+            if (res==1){
+                iv.setBackgroundResource(R.drawable.icon_arow_left_light);
+            }else {
+                iv.setBackgroundResource(R.drawable.icon_arow_right_light);
+            }
+        }else {
+            if (res==1){
+                iv.setBackgroundResource(R.drawable.ic_arow_left);
+            }else {
+                iv.setBackgroundResource(R.drawable.ic_arow_right);
+            }
+        }
     }
 
     @BindingAdapter("viewPageChange")
